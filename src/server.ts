@@ -1,6 +1,5 @@
 import * as express from 'express'
 import * as cors from 'cors';
-import * as fs from 'node:fs'
 import { Pool, getPool } from './pools';
 import { createMatches, getMatchesByPool } from './matches';
 import { BallotSubmission, DuplicateBallotSubmissionError, getBallotsByPool, submitBallot } from './ballots';

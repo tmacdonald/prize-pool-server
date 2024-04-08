@@ -1,6 +1,6 @@
 import { Ballot } from "./ballots";
 import { Pool } from "./pools";
-import { sortBy, groupBy, range, shuffle } from "lodash";
+import { orderBy, groupBy, range, shuffle, differenceWith, uniq, zip } from "lodash";
 
 export interface Match {
   poolId: string;
@@ -20,11 +20,12 @@ export function getMatchesByPool(poolId: string): Match[] {
 }
 
 export function createMatches(pool: Pool, ballots: Ballot[]): Match[] {
+  const won = new Set<number>();
   const winners = new Set<number>();
 
   const ballotsGroupedByPrize = groupBy(ballots, ballot => ballot.prizeId);
 
-  const prizes: Prize[] = range(1, pool.numPrizes).map(prizeId => {
+  const prizes: Prize[] = range(1, pool.numPrizes + 1).map(prizeId => {
     const prizeBallots = ballotsGroupedByPrize[prizeId] || [];
     return {
       id: prizeId,
@@ -32,7 +33,7 @@ export function createMatches(pool: Pool, ballots: Ballot[]): Match[] {
     };
   });
 
-  const popularPrizes = sortBy(prizes, prize => prize.ballots.length, ['desc']);
+  const popularPrizes = orderBy(prizes, prize => prize.ballots.length, ['desc']);
   
   popularPrizes.forEach(prize => {
     const shuffledBallots = shuffle(prize.ballots);
@@ -41,10 +42,22 @@ export function createMatches(pool: Pool, ballots: Ballot[]): Match[] {
       const { participantId } = potentialWinningBallot;
       if (!winners.has(participantId)) {
         winners.add(participantId);
+        won.add(prize.id);
         matches.push({ poolId: pool.id, prizeId: prize.id, participantId: participantId });
         break;
       }
     }
+  });
+
+  // Look for prizes that haven't been won and match them with participants who haven't won
+  const remainingPrizes = shuffle(differenceWith(range(1, pool.numPrizes + 1), [...won]));
+  const remainingParticipants = shuffle(differenceWith(uniq(ballots.map(ballot => ballot.participantId)), [...winners]));
+
+  zip(remainingPrizes, remainingParticipants).forEach(([prizeId, participantId]) => {
+    if (!!prizeId && !!participantId) {
+      matches.push({ poolId: pool.id, prizeId, participantId });
+    }
+    
   });
 
   return matches;
