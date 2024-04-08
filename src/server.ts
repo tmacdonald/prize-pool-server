@@ -5,19 +5,30 @@ import * as fs from 'node:fs'
 // set up express web server
 const app = express()
 app.use(cors());
+app.use(express.json());
 
-// last known count
-let count = 0
+interface Ballot {
+  prizeId: number;
+  participantId: number;
+  ticketId: number;
+}
 
-// Main page
-app.get('/counter', async(req, res) => {
-  res.json({ count });
-})
+const prizeBallots: Ballot[] = [];
 
-app.post('/counter', async(req, res) => {
-  count++;
-  res.json({ count });
-})
+app.get('/api/v1/ballots', (req, res) => {
+  res.json(prizeBallots).send();
+});
+
+app.post('/api/v1/ballots', (req, res) => {
+  const ballot = req.body as Ballot;
+
+  if (!prizeBallots.some(({ participantId, ticketId }) => ballot.participantId === participantId && ballot.ticketId === ticketId)) {
+    prizeBallots.push(ballot);
+    res.status(200).send();
+  } else {
+    res.status(409).send();
+  }
+});
 
 const hostname = '0.0.0.0';
 const port = 3000;
