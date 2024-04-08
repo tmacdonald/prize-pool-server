@@ -34,13 +34,14 @@ app.put('/api/v1/pools/:poolId', (req, res) => {
   if (!pool.areMatchesSet && newPool.areMatchesSet) {
     const ballots = getBallotsByPool(poolId);
     createMatches(newPool, ballots);
+    res.status(200).send();
   }
 })
 
 app.get('/api/v1/pools/:poolId/ballots', (req, res) => {
   const { poolId } = req.params;
   const ballots = getBallotsByPool(poolId);
-  res.json(ballots).send();
+  res.json(ballots);
 });
 
 app.post('/api/v1/pools/:poolId/ballots', (req, res) => {
@@ -63,7 +64,7 @@ app.post('/api/v1/pools/:poolId/ballots', (req, res) => {
 app.get('/api/v1/pools/:poolId/matches', (req, res) => {
   const { poolId } = req.params;
   const matches = getMatchesByPool(poolId);
-  res.json(matches).send();
+  res.json(matches);
 })
 
 const hostname = '0.0.0.0';
