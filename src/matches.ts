@@ -6,6 +6,8 @@ export interface Match {
   poolId: string;
   participantId: number;
   prizeId: number;
+  name: string;
+  homeroom: string;
 }
 
 interface Prize {
@@ -39,11 +41,11 @@ export function createMatches(pool: Pool, ballots: Ballot[]): Match[] {
     const shuffledBallots = shuffle(prize.ballots);
     for (let i = 0; i < shuffledBallots.length; i++) {
       const potentialWinningBallot = shuffledBallots[i];
-      const { participantId } = potentialWinningBallot;
+      const { participantId, name, homeroom } = potentialWinningBallot;
       if (!winners.has(participantId)) {
         winners.add(participantId);
         won.add(prize.id);
-        matches.push({ poolId: pool.id, prizeId: prize.id, participantId: participantId });
+        matches.push({ poolId: pool.id, prizeId: prize.id, participantId: participantId, name, homeroom });
         break;
       }
     }
@@ -55,7 +57,7 @@ export function createMatches(pool: Pool, ballots: Ballot[]): Match[] {
 
   zip(remainingPrizes, remainingParticipants).forEach(([prizeId, participantId]) => {
     if (!!prizeId && !!participantId) {
-      matches.push({ poolId: pool.id, prizeId, participantId });
+      matches.push({ poolId: pool.id, prizeId, participantId, name: 'TODO', homeroom: 'TODO' });
     }
     
   });

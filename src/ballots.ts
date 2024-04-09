@@ -2,6 +2,8 @@ export interface BallotSubmission {
   prizeId: number;
   participantId: number;
   ticketId: number;
+  name: string;
+  homeroom: string;
 }
 
 export interface Ballot extends BallotSubmission {
@@ -9,7 +11,7 @@ export interface Ballot extends BallotSubmission {
 }
 
 export class DuplicateBallotSubmissionError extends Error {
-  
+
 }
 
 const ballots: Ballot[] = [];
